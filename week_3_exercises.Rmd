@@ -17,7 +17,8 @@ triple stars renders a thin line across the page
 
 ***
 1. Import sttstj_all_sites and inspect the data set.  What is the data structure and the data type of each field?
-
+#Imported. Make sure to change "sheet" in the bottom left to the name of the excel tab that you want to work with
+subset(yr_site)
 
 ```{r}
  #this is a code chunk, anything inside the back tics is like being in the R console.
@@ -27,30 +28,78 @@ triple stars renders a thin line across the page
 ```
 ***
 
-2. How many samples are in the data set?         
+install.packages("tidyverse")
+library(tidyverse)
 
-3. How many unique habitat types are there?  What are the names of each habitat?
+#2. How many samples are in the data set?  
+#2505
 
-4. How many sites are there in the "PVMT" habitat type?
+#3. How many unique habitat types are there?  What are the names of each habitat?
+unique(sttstj_all_sites$hab)
+#6  unique sites
+# "PVMT" "AGRF" "SCR"  "PTRF" "BDRK" "HARD"
 
-5. How many sites are there in the "PVMT" or "AGRF" habitat types?
+#4. How many sites are there in the "PVMT" habitat type?
+subset(sttstj_all_sites, subset= hab== 'PVMT')
+#10 sites
+
+#5. How many sites are there in the "PVMT" or "AGRF" habitat types?
+#10
+
+sttstj_all_sites %>%
+filter(hab == 'PVMT' | hab== 'AGRF')
+
+#This is another way to do the same thing
+sttstj_all_sites %>%
+filter(hab %in% c('PVMT', 'AGRF'))
+
+#If you make a vector of the sites you can find out how many sites by doing the below
+PA<- c('PVMT', 'AGRF')
+
+sttstj_all_sites %>%
+filter(hab %in% PA)
+
 
 6. How many sites are there in all the habitat types EXCEPT "PVMT"?
 
-7. Show the first 5 records (rows) of...
-    - all sites sampled in "AGRF" or "SCR"
-    - only show the "yr_site" and "hab" columns
+NoPVMT<-sttstj_all_sites%>%filter(hab!='PVMT')
+#1934
+#Made a value called NoPVMT
+
+#7. Show the first 5 records (rows) of...
+#    - all sites sampled in "AGRF" or "SCR"
+#    - only show the "yr_site" and "hab" columns
+
+AoS<-sttstj_all_sites%>%filter(hab=='AGRF'| hab == 'SCR')%>% select(yr_site, hab) 
+AoS[1:5,]    
     
 <!-- extra line break -->
 <br>
 
-8. What is the northern most site sampled in the "BDRK" habitat?
-
-9. What is the western most site sampled in either "AGRF" or "PTRF" habitat?
-
-10. How many years were surveyed in the data set?
-
-11. What is the southern most site sample in the "PVMT" habitat in 2004?
+#8. What is the northern most site sampled in the "BDRK" habitat?
+BR<-sttstj_all_sites%>%filter(hab=='BDRK')%>%arrange(desc(lat))
+BR[1,]
+#2019_5450
+#arrange does smallest to biggest so we need to tell it to desc so it does the opposite
 
 
+#9. What is the western most site sampled in either "AGRF" or "PTRF" habitat?
+AoP<-sttstj_all_sites%>%filter(hab=='AGRF' | hab== 'PTRF')%>%arrange(lon)
+AoP[1,]
+#2015_9758
 
+
+#10. How many years were surveyed in the data set?
+
+split<-sttstj_all_sites %>% separate(yr_site, c('year','site'))
+View(split)
+unique(split$year)
+length(unique(split$year)) #this will count the returns for you
+#16
+
+#11. What is the southern most site sample in the "PVMT" habitat in 2004?
+
+P04<-split %>% filter(hab=='PVMT'& year=='2004')%>%arrange(lat)
+View(P04)
+P04[1,]
+#1932
